@@ -4,6 +4,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 
+const port = process.env.PORT;
  
 // app.se: MIDDLEWARES que se invocan cuando entra peticion
 // parse application/x-www-form-urlencoded
@@ -51,6 +52,6 @@ app.delete('/usuario', function (req, res) {
     res.json('delete Usuario');
 })
  
-app.listen(process.env.PORT, () => {
-    console.log(`Escuchando en puerto ${process.env.PORT}`);
+app.listen(port, () => {
+    console.log(`Escuchando en puerto ${port}`);
 });
