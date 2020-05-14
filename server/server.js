@@ -7,11 +7,14 @@ const bodyParser = require('body-parser');
  
 // app.se: MIDDLEWARES que se invocan cuando entra peticion
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
  
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
+app.get('/', function (req, res) {
+    res.json('INDEX');
+})
 
 app.get('/usuario', function (req, res) {
   res.json('get Usuario');
