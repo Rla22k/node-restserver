@@ -45,7 +45,7 @@ let verificaRole = (req, res, next) => {
 
 }
 
-module.exports = { 
+module.exports = {
     verificaToken,
     verificaRole
 }
