@@ -7,12 +7,9 @@ const _ = require('underscore');
 
 const Usuario = require('../models/usuario');
 
+const { verificaToken, verificaRole } = require('../middlewares/autenticacion');
 
-app.get('/', function (req, res) {
-    res.json('INDEX');
-})
-
-app.get('/usuario', function (req, res) {
+app.get('/usuario', verificaToken /*MDW*/, (req, res) => {
 
     let desde = req.query.desde || 0;
     desde = Number(desde);
@@ -31,7 +28,7 @@ app.get('/usuario', function (req, res) {
                 });
             }
 
-            Usuario.count({status: true}, (erro, totalRegistros) => {
+            Usuario.countDocuments({status: true}, (erro, totalRegistros) => {
                 res.json({
                     ok: true,
                     usuarios,
@@ -42,7 +39,7 @@ app.get('/usuario', function (req, res) {
 
 });
 
-app.post('/usuario', function (req, res) {
+app.post('/usuario', [verificaToken, verificaRole] /*MDW*/, function (req, res) {
 
     let body = req.body;
 
@@ -70,7 +67,7 @@ app.post('/usuario', function (req, res) {
 
 });
 
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id', [verificaToken, verificaRole] /*MDW*/, function (req, res) {
 
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -81,22 +78,31 @@ app.put('/usuario/:id', function (req, res) {
             runValidators: true
         },
         (err, usuarioDB) => {
-        if (err) {
-            return res.status(400).json({
-                ok: false,
-                err
-            });
-        }
+            if (err) {
+                return res.status(400).json({
+                    ok: false,
+                    err
+                });
+            }
 
-        res.json({
-            ok: true,
-            usuario: usuarioDB
-        });
-    })
+            if (!usuarioDB) {
+                return res.status(400).json({
+                    ok: false,
+                    err: {
+                        message: 'No se encuentra el usuario'
+                    }
+                });
+            }
+
+            res.json({
+                ok: true,
+                usuario: usuarioDB
+            });
+        })
 
 });
 
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaRole] /*MDW*/, function (req, res) {
 
     let id = req.params.id;
 
@@ -105,7 +111,7 @@ app.delete('/usuario/:id', function (req, res) {
     }
 
     Usuario
-        .update({_id: id, status: true},cambiaEstado,(err,updatedUser) => {
+        .update({_id: id, status: true},cambiaEstado,(err,result) => {
                 if (err) {
                     return res.status(400).json({
                         ok: false,
@@ -113,7 +119,7 @@ app.delete('/usuario/:id', function (req, res) {
                     });
                 }
     
-                if (!updatedUser) {
+                if (!result) {
                     return res.status(400).json({
                         ok: false,
                         err: {
@@ -121,10 +127,11 @@ app.delete('/usuario/:id', function (req, res) {
                         }
                     });
                 }
-    
+
                 res.json({
                     ok: true,
-                    usuario: updatedUser
+                    result
+                    //usuario: req.usuario
                 });
         });
         
