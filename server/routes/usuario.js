@@ -79,7 +79,7 @@ app.put('/usuario/:id', [verificaToken, verificaRole] /*MDW*/, function (req, re
         },
         (err, usuarioDB) => {
             if (err) {
-                return res.status(400).json({
+                return res.status(500).json({
                     ok: false,
                     err
                 });
